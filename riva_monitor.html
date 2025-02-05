@@ -1,39 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riva Monitor</title>
-     <style>
-        /* Container for the iframes */
-        .iframe-container {
-          display: flex;
-          justify-content: center;  /* centers the iframes horizontally */
-          gap: 20px;  /* optional: space between the iframes */
-          flex-wrap: wrap;  /* ensures iframes wrap if needed */
-        }
-    
-        /* Iframe styling (optional) */
-        .iframe-container iframe {
-          width: 425px;
-          height: 230px;
-          border: none;
-        }
-    
-        /* Media query: when viewport is less than 900px wide, stack iframes */
-        @media (max-width: 900px) {
-          .iframe-container {
-            flex-direction: column;
-            align-items: center;  /* centers iframes when stacked */
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="iframe-container">
-        <iframe src="https://thingspeak.mathworks.com/channels/2605389/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=144&type=line" frameborder="0"></iframe>
-        <iframe src="https://thingspeak.mathworks.com/channels/2605389/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=144&type=line" frameborder="0"></iframe>
-      </div>
-    </body>
-</html>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B IS FOR BOAT - Monitoring Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+  <style>
+    :root {
+      --primary: #d62020;
+      --bg-dark: #0a0a0a;
+      --bg-light: #f0f0f0;
+      --text-dark: #1a1a1a;
+      --text-light: #ffffff;
+    }
 
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .glow-text {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                   0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .light-mode .glow-text {
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.3),
+                   0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .chart-container {
+      height: min(500px, 70vh);
+      transition: transform 0.2s ease;
+    }
+
+    .chart-container:hover {
+      transform: scale(1.02);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .boat-animation {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    .light-mode {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+    }
+
+    .stealth-mode {
+      background-color: #000000;
+      color: #000000;
+    }
+
+    .stealth-mode .header-section,
+    .stealth-mode .chart-card {
+      background-color: #000000;
+    }
+
+    .dark-mode .chart-card {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .light-mode .chart-card {
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    .light-mode .header-section {
+      background-color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark-mode .header-section {
+      background-color: #000000;
+    }
+
+    .contrast-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    .contrast-mode .chart-card {
+      background-color: #ffffff;
+      color: var(--text-dark);
+    }
+
+    @media (max-width: 768px) {
+      .chart-container {
+        height: min(400px, 60vh);
+      }
+    }
+
+    #modeToggle {
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 2px #000000;
+    }
+  </style>
+</head>
+<body class="min-h-screen dark-mode">
+  <header class="header-section relative py-6 px-4 transition-colors duration-300">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <a href="https://www.youtube.com/playlist?list=PLHFFREt3OXLFOwRiF0GmO-OQ9n8IsnDuo" 
+         target="_blank" 
+         class="hover:opacity-75 transition-opacity">
+        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      </a>
+      <h1 class="text-4xl md:text-5xl font-bold text-center glow-text tracking-wider">
+        B IS FOR BOAT
+      </h1>
+      <img 
+        src="https://iili.io/2tgS8xa.png"
+        alt="Boat Icon" 
+        class="w-16 h-16 boat-animation opacity-80"
+      >
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-4 space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Battery Voltage Chart -->
+      <div class="chart-card rounded-xl p-4 shadow-lg transition-colors duration-300">
+        <h2 class="text-xl font-semibold mb-4 text-center transition-colors duration-300">Battery Voltage</h2>
+        <div class="chart-container">
+          <iframe 
+            id="voltageChart"
+            src="https://thingspeak.mathworks.com/channels/2605389/charts/1?bgcolor=%230a0a0a&color=%23d62020&dynamic=true&results=144&type=line&title=&xaxis=Time&yaxis=Voltage"
+            class="w-full h-full rounded-lg"
+            frameborder="0">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Temperature Chart -->
+      <div class="chart-card rounded-xl p-4 shadow-lg transition-colors duration-300">
+        <h2 class="text-xl font-semibold mb-4 text-center transition-colors duration-300">Temperature</h2>
+        <div class="chart-container">
+          <iframe 
+            id="tempChart"
+            src="https://thingspeak.mathworks.com/channels/2605389/charts/2?bgcolor=%230a0a0a&color=%23d62020&dynamic=true&results=144&type=line&title=&xaxis=Time&yaxis=Temperature"
+            class="w-full h-full rounded-lg"
+            frameborder="0">
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Section -->
+    <div class="chart-card rounded-xl p-6 text-center transition-colors duration-300">
+      <p class="text-lg transition-colors duration-300">
+        Last Updated: <span id="lastUpdate" class="font-mono text-primary"></span>
+      </p>
+    </div>
+  </main>
+
+  <!-- Theme Toggle Button -->
+  <button id="modeToggle" class="fixed bottom-4 right-4 p-3 rounded-full shadow-lg transition-colors duration-300 hover:opacity-80">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" id="modeIcon" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none">
+      <path class="sun-icon hidden" stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+      <path class="moon-icon hidden" stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+      <path class="stealth-icon hidden" stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+    </svg>
+  </button>
+
+  <script>
+    // Update timestamp
+    function updateTimestamp() {
+      document.getElementById('lastUpdate').textContent = 
+        new Date().toLocaleTimeString();
+    }
+
+    // Initialize
+    updateTimestamp();
+    setInterval(updateTimestamp, 60000);
+
+    // Theme toggling
+    const modeToggle = document.getElementById('modeToggle');
+    const body = document.body;
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    const stealthIcon = document.querySelector('.stealth-icon');
+    const voltageChart = document.getElementById('voltageChart');
+    const tempChart = document.getElementById('tempChart');
+
+    // Track current mode
+    let currentMode = 'dark'; // dark -> light -> stealth -> contrast
+
+    /**
+     * Update the background colors of the charts based on the current mode.
+     * @param {string} mode - The current theme mode.
+     */
+    function updateChartBackgrounds(mode) {
+      let bgColor;
+      switch(mode) {
+        case 'light':
+          bgColor = '%23f0f0f0';
+          break;
+        case 'stealth':
+        case 'dark':
+          bgColor = '%230a0a0a';
+          break;
+        case 'contrast':
+          bgColor = '%23ffffff';
+          break;
+      }
+      
+      const baseUrl = 'https://thingspeak.mathworks.com/channels/2605389/charts/';
+      voltageChart.src = `${baseUrl}1?bgcolor=${bgColor}&color=%23d62020&dynamic=true&results=144&type=line&title=&xaxis=Time&yaxis=Voltage`;
+      tempChart.src = `${baseUrl}2?bgcolor=${bgColor}&color=%23d62020&dynamic=true&results=144&type=line&title=&xaxis=Time&yaxis=Temperature`;
+    }
+
+    /**
+     * Update the theme of the page based on the current mode.
+     * @param {string} mode - The current theme mode.
+     */
+    function updateTheme(mode) {
+      // Remove all mode classes
+      body.classList.remove('dark-mode', 'light-mode', 'stealth-mode', 'contrast-mode');
+      
+      // Hide all icons
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.add('hidden');
+      stealthIcon.classList.add('hidden');
+      
+      // Apply new mode
+      switch(mode) {
+        case 'dark':
+          body.classList.add('dark-mode');
+          sunIcon.classList.remove('hidden');
+          modeToggle.style.backgroundColor = '#ffffff';
+          modeToggle.style.color = '#1a1a1a';
+          break;
+        case 'light':
+          body.classList.add('light-mode');
+          moonIcon.classList.remove('hidden');
+          modeToggle.style.backgroundColor = '#1a1a1a';
+          modeToggle.style.color = '#ffffff';
+          break;
+        case 'stealth':
+          body.classList.add('stealth-mode');
+          stealthIcon.classList.remove('hidden');
+          modeToggle.style.backgroundColor = '#333333';
+          modeToggle.style.color = '#ffffff';
+          break;
+        case 'contrast':
+          body.classList.add('contrast-mode');
+          modeToggle.style.backgroundColor = '#000000';
+          modeToggle.style.color = '#ffffff';
+          break;
+      }
+      
+      updateChartBackgrounds(mode);
+    }
+
+    // Event listener for theme toggle button
+    modeToggle.addEventListener('click', () => {
+      switch(currentMode) {
+        case 'dark':
+          currentMode = 'light';
+          break;
+        case 'light':
+          currentMode = 'stealth';
+          break;
+        case 'stealth':
+          currentMode = 'contrast';
+          break;
+        case 'contrast':
+          currentMode = 'dark';
+          break;
+      }
+      updateTheme(currentMode);
+    });
+
+    // Initialize theme
+    updateTheme('dark');
+  </script>
+</body>
+</html>
