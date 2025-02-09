@@ -1,0 +1,107 @@
+@font-face {
+  font-family: "DirtyEgo";
+  src: url("/fonts/dirty-ego.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  font-family: Manrope, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: var(--color-text-light);
+  background-color: var(--color-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --color-text-light: #dfdfdf;
+  --color-background: #09090b;
+  --color-border: #ffffff;
+  --color-outline: #27272a;
+
+  --border-radius-standard: 4px;
+}
+
+* {
+  margin: 0;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-family: DirtyEgo;
+  font-size: 3em;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.8em;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+h3 {
+  font-size: 1.3em;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+p {
+  text-wrap: pretty;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+button {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent; /* Removes iOS tap highlight */
+  touch-action: manipulation; /* Prevents weird tap behaviors */
+}
